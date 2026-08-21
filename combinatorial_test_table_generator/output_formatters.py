@@ -32,8 +32,16 @@ def format_markdown(result: GenerationResult) -> str:
             f"（{result.coverage.covered_combinations}/"
             f"{result.coverage.required_combinations}）"
         ),
-        "",
     ]
+    if result.orthogonal_array:
+        lines.extend(
+            [
+                f"- 严格正交表：`{result.orthogonal_array['array_id']}`",
+                f"- 参考来源：{result.orthogonal_array['source_url']}",
+            ]
+        )
+    lines.extend(f"- 提示：{warning}" for warning in result.warnings)
+    lines.append("")
     headers = list(result.test_cases[0])
     lines.append("| " + " | ".join(_escape_markdown_cell(item) for item in headers) + " |")
     lines.append("| " + " | ".join("---" for _ in headers) + " |")

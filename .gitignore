@@ -1,6 +1,7 @@
 __pycache__/
 *.py[cod]
 *.egg-info/
+*.dist-info/
 .pytest_cache/
 .coverage
 build/
@@ -8,3 +9,12 @@ dist/
 .venv/
 .idea/
 .vscode/
+
+# 本地输入与生成结果
+factors.json
+case_table.md
+case_table.json
+case_table.csv
+
+# 本地需求文档
+需求规格说明书.md

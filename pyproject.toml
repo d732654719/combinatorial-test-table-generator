@@ -4,8 +4,8 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "combinatorial-test-table-generator"
-version = "0.1.0"
-description = "离线、确定性的两两覆盖组合测试表生成器"
+version = "0.3.0"
+description = "离线、确定性的严格正交表与两两覆盖组合测试表生成器"
 readme = "README.md"
 requires-python = ">=3.11"
 license = "MIT"
@@ -25,4 +25,7 @@ dependencies = []
 combinatorial-test-table-generator = "combinatorial_test_table_generator.command_line_interface:main"
 
 [tool.setuptools]
-packages = ["combinatorial_test_table_generator"]
+packages = ["combinatorial_test_table_generator", "reference_data"]
+
+[tool.setuptools.package-data]
+reference_data = ["orthogonal_arrays/*.txt", "orthogonal_arrays/*.json"]

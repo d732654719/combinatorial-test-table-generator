@@ -51,7 +51,7 @@ class GenerationResult:
     coverage: CoverageReport
     test_cases: tuple[dict[str, str], ...]
     warnings: tuple[str, ...] = ()
-    orthogonal_array: None = None
+    orthogonal_array: dict[str, Any] | None = None
 
     @property
     def case_count(self) -> int:

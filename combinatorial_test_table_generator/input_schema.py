@@ -1,4 +1,4 @@
-"""JSON 输入读取与 v0.1 规则校验。"""
+"""JSON 输入读取与规则校验。"""
 
 from __future__ import annotations
 
@@ -35,28 +35,24 @@ def load_request(path: str | Path, mode_override: str | None = None) -> Generati
 
 
 def validate_request(data: Any, mode_override: str | None = None) -> GenerationRequest:
-    """按 v0.1 支持范围校验一个已解析的 JSON 值。"""
+    """按当前版本支持范围校验一个已解析的 JSON 值。"""
 
     if not isinstance(data, dict):
         raise InputValidationError("JSON 顶层必须是对象。")
 
-    mode = mode_override if mode_override is not None else data.get("mode", "pairwise")
+    mode = mode_override if mode_override is not None else data.get("mode", "auto")
     if mode not in {"auto", "orthogonal", "pairwise"}:
         raise InputValidationError("mode 必须是 auto、orthogonal 或 pairwise。")
-    if mode != "pairwise":
-        raise InputValidationError(
-            f"v0.1 仅支持 pairwise 模式；{mode} 模式将在 v0.2 提供。"
-        )
 
     strength = data.get("strength", 2)
     if isinstance(strength, bool) or not isinstance(strength, int) or strength != 2:
-        raise InputValidationError("v0.1 的 strength 仅支持整数 2。")
+        raise InputValidationError("当前版本的 strength 仅支持整数 2。")
 
     raw_factors = data.get("factors")
     if not isinstance(raw_factors, list):
         raise InputValidationError("factors 必须是数组。")
     if not 2 <= len(raw_factors) <= 8:
-        raise InputValidationError("v0.1 要求 factors 包含 2～8 个因子。")
+        raise InputValidationError("当前版本要求 factors 包含 2～8 个因子。")
 
     factors: list[Factor] = []
     seen_names: set[str] = set()

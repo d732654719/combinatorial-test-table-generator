@@ -25,18 +25,18 @@ class InputSchemaTests(unittest.TestCase):
         self.assertEqual(request.strength, 2)
         self.assertEqual(request.factors[0].levels, ("Chrome", "Firefox"))
 
-    def test_mode_defaults_to_pairwise_in_v01(self):
+    def test_mode_defaults_to_auto(self):
         data = valid_input()
         del data["mode"]
 
-        self.assertEqual(validate_request(data).mode, "pairwise")
+        self.assertEqual(validate_request(data).mode, "auto")
 
-    def test_rejects_modes_reserved_for_v02(self):
-        data = valid_input()
-        data["mode"] = "auto"
-
-        with self.assertRaisesRegex(InputValidationError, "v0.1 仅支持 pairwise"):
-            validate_request(data)
+    def test_accepts_all_v02_modes(self):
+        for mode in ("auto", "orthogonal", "pairwise"):
+            with self.subTest(mode=mode):
+                data = valid_input()
+                data["mode"] = mode
+                self.assertEqual(validate_request(data).mode, mode)
 
     def test_cli_mode_override_takes_precedence(self):
         data = valid_input()

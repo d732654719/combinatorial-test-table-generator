@@ -1,12 +1,14 @@
 import csv
 import io
 import json
+import os
 import tempfile
 import unittest
 from contextlib import redirect_stderr
 from pathlib import Path
 
-from combinatorial_test_table_generator.command_line_interface import main
+from combinatorial_test_table_generator.command_line_interface import build_parser, main
+from combinatorial_test_table_generator.generator import generate
 from combinatorial_test_table_generator.input_schema import validate_request
 from combinatorial_test_table_generator.output_formatters import (
     format_csv,
@@ -83,6 +85,54 @@ class OutputAndCliTests(unittest.TestCase):
             self.assertEqual(exit_code, 0)
             with output_path.open(encoding="utf-8", newline="") as output_file:
                 self.assertEqual(len(list(csv.DictReader(output_file))), 6)
+
+    def test_cli_accepts_short_mode_values_and_flags(self):
+        parser = build_parser()
+
+        self.assertEqual(parser.parse_args(["--mode", "o"]).mode, "o")
+        self.assertEqual(parser.parse_args(["-p"]).mode_flag, "pairwise")
+        self.assertEqual(parser.parse_args(["-a"]).mode_flag, "auto")
+
+    def test_cli_defaults_need_no_arguments(self):
+        with tempfile.TemporaryDirectory() as temp_dir:
+            temporary_root = Path(temp_dir)
+            (temporary_root / "factors.json").write_text(
+                json.dumps(
+                    {
+                        "factors": [
+                            {"name": "A", "levels": ["0", "1"]},
+                            {"name": "B", "levels": ["0", "1"]},
+                        ]
+                    }
+                ),
+                encoding="utf-8",
+            )
+            original_directory = Path.cwd()
+            try:
+                os.chdir(temporary_root)
+                exit_code = main([])
+            finally:
+                os.chdir(original_directory)
+
+            self.assertEqual(exit_code, 0)
+            output = (temporary_root / "case_table.md").read_text(encoding="utf-8")
+            self.assertIn("严格正交表：`OA(4,3,2,2)`", output)
+
+    def test_markdown_includes_orthogonal_source(self):
+        request = validate_request(
+            {
+                "mode": "auto",
+                "factors": [
+                    {"name": "A", "levels": ["0", "1"]},
+                    {"name": "B", "levels": ["0", "1"]},
+                ],
+            }
+        )
+
+        output = format_markdown(generate(request))
+
+        self.assertIn("严格正交表：`OA(4,3,2,2)`", output)
+        self.assertIn("https://neilsloane.com/oadir/oa.4.3.2.2.txt", output)
 
     def test_cli_returns_chinese_error_for_invalid_json(self):
         with tempfile.TemporaryDirectory() as temp_dir:
