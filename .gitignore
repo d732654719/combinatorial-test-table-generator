@@ -11,7 +11,6 @@ dist/
 .vscode/
 
 # 本地输入与生成结果
-factors.json
 case_table.md
 case_table.json
 case_table.csv
